@@ -1,0 +1,5 @@
+allowBuilds:
+  esbuild: false
+minimumReleaseAgeExclude:
+  - '@kameleoon/javascript-sdk-core@5.30.0'
+  - '@kameleoon/nodejs-sdk@5.30.1'

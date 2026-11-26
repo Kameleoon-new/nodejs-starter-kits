@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <%# No engineTrackingCode on this page: engine.js only receives the visitor code and the consent %>
+  <%- include("partials/kameleoon", { siteCode, visitorCode, consent }) %>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server-side tracking | Kameleoon hybrid starter kit</title>
+  <%- include("partials/style") %>
+</head>
+<body>
+<main>
+  <nav>
+    <a href="/server-tracking" class="current">Server-side tracking</a>
+    <a href="/engine-tracking">Engine-side tracking</a>
+  </nav>
+
+  <h1>Server-side tracking</h1>
+  <p>A hybrid page. The Node.js SDK evaluates one feature flag and reports its exposure.
+    engine.js receives the visitor code and consent, so both sides identify the same visitor.</p>
+
+  <h2>What happened for this request</h2>
+  <ol>
+    <li><code>getVisitorCode()</code> read or created the visitor code.</li>
+    <li><code>setLegalConsent()</code> gave the SDK the consent choice, if there is one.</li>
+    <% if (variation) { %>
+      <li><code>getVariation()</code> evaluated <code><%= featureKey %></code> and reported the exposure from the server.</li>
+    <% } else { %>
+      <li><code>getVariation()</code> could not evaluate <code><%= featureKey %></code>, so nothing was reported.</li>
+    <% } %>
+    <li>The page gave the same visitor code and consent to engine.js.</li>
+  </ol>
+
+  <h2>Result</h2>
+  <table>
+    <tr><th>Visitor code</th><td><code><%= visitorCode %></code></td></tr>
+    <tr><th>Consent</th><td><code><%= consent %></code></td></tr>
+    <tr><th>Feature key</th><td><code><%= featureKey %></code></td></tr>
+    <% if (variation) { %>
+      <tr><th>Variation</th><td><code><%= variation.key %></code><%= variation.name ? ` (${variation.name})` : "" %></td></tr>
+      <tr>
+        <th>Variables</th>
+        <td>
+          <% if (variation.variables.size === 0) { %>
+            None
+          <% } else { %>
+            <% for (const [key, variable] of variation.variables) { %>
+              <div><code><%= key %></code> = <code><%= JSON.stringify(variable.value) %></code></div>
+            <% } %>
+          <% } %>
+        </td>
+      </tr>
+    <% } else { %>
+      <tr>
+        <th>Variation</th>
+        <td>Default experience. The flag was not evaluated: the key is unknown, the flag is
+          disabled in this environment, or the project blocks experiments because consent is
+          denied. The server log has the reason.</td>
+      </tr>
+    <% } %>
+    <tr><th>Exposure reported by</th><td><%= variation ? "Node.js SDK" : "Nobody: the flag was not evaluated" %></td></tr>
+  </table>
+
+  <%- include("partials/consent", { consent }) %>
+</main>
+</body>
+</html>

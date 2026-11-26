@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <%# engineTrackingCode makes engine.js report the exposure for this page %>
+  <%- include("partials/kameleoon", { siteCode, visitorCode, consent, engineTrackingCode }) %>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engine-side tracking | Kameleoon hybrid starter kit</title>
+  <%- include("partials/style") %>
+</head>
+<body>
+<main>
+  <nav>
+    <a href="/server-tracking">Server-side tracking</a>
+    <a href="/engine-tracking" class="current">Engine-side tracking</a>
+  </nav>
+
+  <h1>Engine-side tracking</h1>
+  <p>A hybrid page. The Node.js SDK evaluates feature flags without tracking. engine.js
+    reports the exposures from the browser.</p>
+
+  <h2>What happened for this request</h2>
+  <ol>
+    <li><code>getVisitorCode()</code> read or created the visitor code.</li>
+    <li><code>setLegalConsent()</code> gave the SDK the consent choice, if there is one.</li>
+    <li><code>getVariations({ track: false })</code> evaluated every feature flag without tracking.</li>
+    <li><code>getEngineTrackingCode()</code> turned the assignments into JavaScript for engine.js.</li>
+    <li>The page gave the visitor code, the consent and that JavaScript to engine.js.</li>
+  </ol>
+
+  <h2>Result</h2>
+  <table>
+    <tr><th>Visitor code</th><td><code><%= visitorCode %></code></td></tr>
+    <tr><th>Consent</th><td><code><%= consent %></code></td></tr>
+    <tr><th>Exposure reported by</th><td>engine.js</td></tr>
+  </table>
+
+  <h2>Feature flags</h2>
+  <% if (variations.size === 0) { %>
+    <p>No feature flag was evaluated: none is enabled in this environment, or the project blocks experiments because consent is denied.</p>
+  <% } else { %>
+    <table>
+      <tr><th>Feature key</th><th>Variation</th><th>Experiment ID</th><th>Variation ID</th></tr>
+      <% for (const [featureKey, variation] of variations) { %>
+        <tr>
+          <td><code><%= featureKey %></code></td>
+          <td><code><%= variation.key %></code></td>
+          <td><%= variation.experimentId ?? "none" %></td>
+          <td><%= variation.id ?? "none" %></td>
+        </tr>
+      <% } %>
+    </table>
+  <% } %>
+
+  <h2>Engine tracking code sent to the browser</h2>
+  <p>A flag appears here only when the visitor matched one of its rules. The default variation has nothing to report.</p>
+  <pre><%= engineTrackingCode %></pre>
+
+  <%- include("partials/consent", { consent }) %>
+</main>
+</body>
+</html>

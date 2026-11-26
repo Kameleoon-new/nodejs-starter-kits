@@ -1,0 +1,30 @@
+<%#
+  Stand-in for a consent banner. It only stores the visitor's choice in a cookie and
+  reloads the page. On the next request the server gives the choice to the SDK
+  (visitor.ts) and the page gives it to engine.js (partials/kameleoon.ejs).
+
+  The reload keeps the example to a single path: both sides always receive the
+  choice at the start of a request. On a real site the choice comes from your consent
+  management platform. Call Kameleoon.API.Core.enableLegalConsent() /
+  disableLegalConsent() from its callback as well, so engine.js learns the choice
+  without waiting for the next page.
+
+  Locals: consent ("granted", "denied" or "unknown")
+%>
+<h2>Legal consent</h2>
+<p>
+  Current choice: <code><%= consent %></code>.
+  <% if (consent === "unknown") { %>Neither the SDK nor engine.js has been told anything yet.<% } %>
+</p>
+<p>
+  <button type="button" onclick="storeConsent(true)">Accept</button>
+  <button type="button" onclick="storeConsent(false)">Reject</button>
+</p>
+
+<script>
+  function storeConsent(granted) {
+    // Same cookie name as CONSENT_COOKIE in src/visitor.ts
+    document.cookie = "kameleoonConsent=" + granted + "; path=/; max-age=31536000; SameSite=Lax";
+    location.reload();
+  }
+</script>
